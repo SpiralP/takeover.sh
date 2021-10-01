@@ -12,10 +12,6 @@ if [ ! -e fakeinit ]; then
     exit 1
 fi
 
-./busybox echo "Please set a root password for sshd"
-
-./busybox chroot . /bin/passwd
-
 ./busybox echo "Setting up target filesystem..."
 ./busybox rm -f etc/mtab
 ./busybox ln -s /proc/mounts etc/mtab
@@ -37,14 +33,7 @@ TTY="$(./busybox tty)"
 
 ./busybox echo "Checking and switching TTY..."
 
-exec <"$TO/$TTY" >"$TO/$TTY" 2>"$TO/$TTY"
-
-./busybox echo "Type 'OK' to continue"
-./busybox echo -n "> "
-read a
-if [ "$a" != "OK" ] ; then
-    exit 1
-fi
+exec <"${TO}/${TTY}" >"${TO}/${TTY}" 2>"${TO}/${TTY}"
 
 ./busybox echo "Preparing init..."
 ./busybox cat >tmp/${OLD_INIT##*/} <<EOF
@@ -68,12 +57,6 @@ EOF
 ./busybox chroot . /usr/sbin/sshd -p $PORT -o PermitRootLogin=yes
 
 ./busybox echo "You should SSH into the secondary sshd now."
-./busybox echo "Type OK to continue"
-./busybox echo -n "> "
-read a
-if [ "$a" != "OK" ] ; then
-    exit 1
-fi
 
 ./busybox echo "About to take over init. This script will now pause for a few seconds."
 ./busybox echo "If the takeover was successful, you will see output from the new init."
@@ -82,7 +65,7 @@ fi
 
 ./busybox mount --bind tmp/${OLD_INIT##*/} ${OLD_INIT}
 
+# request that the init(8) daemon re-execute itself
 telinit u
 
-./busybox sleep 10
-
+./busybox sleep 1
