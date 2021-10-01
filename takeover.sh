@@ -7,6 +7,10 @@ PORT=80
 
 cd "$TO"
 
+wget -qO- https://www.busybox.net/downloads/binaries/1.26.2-defconfig-multiarch/busybox-x86_64 > ./busybox && \
+    echo '79b3c42078019db853f499852dac831afda935acf9df4c748c3bab914f1cf298  busybox' | sha256sum -c || exit 1
+chmod +x ./busybox
+
 if [ ! -e fakeinit ]; then
     ./busybox echo "Please compile fakeinit.c first"
     exit 1
